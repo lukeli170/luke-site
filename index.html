@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en" data-sky>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luke Li</title>
+<meta name="description" content="Luke Li, founder of Everest and applied math student at UC Berkeley. His work, research, leadership and awards, newest first.">
+<style>
+@font-face { font-family: "Geist"; font-weight: 400 600; font-display: swap; src: url(assets/geist.woff2) format("woff2"); }
+
+:root {
+  --sky: #e6f0f9; --sky-card: #f6f8fa; --night: #0d0e13; --night-card: #15161c;
+  /* --f runs from 1 (Everest's sky, today) to 0 (night, high school) along the timeline. --g fades the cards over
+     the middle half of it; text flips at the halfway grey, and --m (0 there, 1 at either end) pulls muted text
+     to full ink near the flip so it stays readable. The script sets all three. */
+  --f: 1; --g: 1; --m: 1;
+  --bg: color-mix(in oklab, var(--night), var(--sky) calc(var(--f) * 100%));
+  --card: color-mix(in oklab, var(--night-card), var(--sky-card) calc(var(--g) * 100%));
+  --muted: color-mix(in oklab, var(--ink), var(--muted0) calc(var(--m) * 100%));
+  --ink: #f2f5f9; --muted0: #a3a9b3; --line: #ffffff24; --wire: #ffffff3d; --pulse: #e6f0f9; --topo: #ffffff12; --topo-major: #ffffff21;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+html[data-sky] { --ink: #1e1035; --muted0: #4f4873; --line: #1e103526; --wire: #1e103559; --pulse: #1e1035; --topo: #1e103514; --topo-major: #1e103526; }
+
+* { box-sizing: border-box; }
+html { background: var(--bg); color: var(--ink); -webkit-text-size-adjust: 100%; }
+body { margin: 0; font: 400 15px/1.5 Geist, system-ui, sans-serif; transition: color .2s; }
+h1, h2, h3, p, ul, dl, dd { margin: 0; padding: 0; }
+ul { list-style: none; }
+a { color: inherit; text-underline-offset: 3px; text-decoration-color: var(--muted); }
+a:hover { text-decoration-color: currentColor; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.mono { font: 400 12px/1.4 var(--mono); color: var(--muted); }
+
+.btn { display: inline-block; padding: 7px 13px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); font-size: 14px; text-decoration: none; transition: border-color .15s, transform .1s; }
+.btn:hover { border-color: var(--muted); }
+.btn:active { transform: translateY(1px); }
+.btn--main { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.top { position: fixed; z-index: 3; inset: 16px 20px auto; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
+.top > * { pointer-events: auto; }
+
+/* Cards. A card with --brand gets its organisation's colour as a top stripe and a soft wash. */
+.card { --brand: transparent; position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px 18px; transition: border-color .15s; overflow: hidden; }
+.card::after { content: ""; position: absolute; inset: 0 0 auto; height: 120px; pointer-events: none; border-top: 3px solid var(--brand);
+  background: linear-gradient(color-mix(in oklab, var(--brand) 28%, transparent), transparent); }
+.card:hover { border-color: var(--muted); }
+.card > * { position: relative; z-index: 1; }
+.card__id { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; }
+.card__id .mono { margin-top: 1px; }
+.card__when { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 12px; padding-bottom: 10px; margin-bottom: 2px; border-bottom: 1px solid var(--line); }
+.logo { width: 40px; height: 40px; padding: 5px; border-radius: 8px; background: #fff; object-fit: contain; box-shadow: 0 0 0 1px #0000000f; }
+.card h3 { font-size: 17px; font-weight: 500; line-height: 1.3; }
+.card__line { margin-top: 10px; color: var(--muted); }
+.card a { overflow-wrap: anywhere; }
+.pts { display: grid; gap: 7px; margin-top: 12px; }
+.pts li { padding-left: 14px; position: relative; }
+.pts li::before { content: ""; position: absolute; left: 0; top: .7em; width: 6px; border-top: 1px solid var(--muted); }
+
+.intro h1 { font-size: 40px; font-weight: 500; letter-spacing: -.02em; line-height: 1.15; }
+.intro__lead { margin: 10px 0 6px; font-size: 18px; line-height: 1.4; }
+.intro__sub { margin-bottom: 18px; color: var(--muted); }
+.feature h2 { font-size: 30px; font-weight: 500; line-height: 1.2; letter-spacing: -.01em; }
+.feature .logo { width: 48px; height: 48px; padding: 0; }
+.feature__lead { margin-top: 14px; font-size: 17px; line-height: 1.45; }
+.feature .stats { grid-template-columns: repeat(3, 1fr); }
+/* the clients as stops on a short line, echoing the page's timeline */
+.clients { list-style: none; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 12px; margin-top: 18px; padding: 16px 0 0; position: relative; }
+.clients::before { content: ""; position: absolute; left: 4px; right: 0; top: 4px; border-top: 1px solid var(--wire); }
+.clients li { position: relative; }
+.clients li::before { content: ""; position: absolute; left: 0; top: -16px; width: 9px; height: 9px; border-radius: 50%; background: var(--ink); }
+.clients__name { font-size: 15px; font-weight: 500; margin: 2px 0; }
+html:not(.canvas) .clients, html:not(.canvas) .feature .stats { grid-template-columns: 1fr 1fr; }
+html:not(.canvas) .clients li:first-child { grid-column: 1 / -1; }
+html:not(.canvas) .clients { padding-top: 0; }
+html:not(.canvas) .clients::before, html:not(.canvas) .clients li::before { display: none; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.tags li { padding: 2px 8px; border: 1px solid var(--line); border-radius: 5px; font: 400 12px/1.5 var(--mono); }
+
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin-top: 16px; }
+.stats dd { font-size: 20px; line-height: 1.25; }
+.stats dt { font: 400 12px/1.4 var(--mono); color: var(--muted); grid-row: 2; }
+.stats > div { display: grid; align-content: start; }
+.stats--3 { grid-template-columns: repeat(3, 1fr); }
+
+/* A card still waiting for facts from Luke. Remove the class once it's filled in. */
+
+.col__h, .frame__h { font: 400 12px/1.4 var(--mono); color: var(--muted); margin-bottom: 10px; }
+.col__h { width: fit-content; padding: 2px 8px; border-radius: 5px; background: var(--card); }
+.frame__h { display: flex; justify-content: space-between; }
+.stack { display: grid; gap: 16px; }
+.frame { border: 1px dashed var(--wire); border-radius: 14px; padding: 16px; background: color-mix(in oklab, var(--card) 72%, transparent); }
+.pairs { display: grid; grid-template-columns: repeat(var(--cols, 2), 1fr); gap: 12px; align-items: start; }
+.tile { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; }
+.tile .mono { display: block; }
+.after { display: grid; gap: 16px; }
+.credit { margin-top: 12px; }
+.blurb { margin-top: 12px; color: var(--muted); }
+
+.rail, .hint { display: none; }
+#topo, #wires { display: none; }
+
+/* Phone, and any page without the script: an ordinary vertical timeline */
+html:not(.canvas) body { background-image: radial-gradient(var(--topo-major) 1px, transparent 1.4px); background-size: 24px 24px; }
+html:not(.canvas) .top { position: absolute; }
+html:not(.canvas) main { width: min(100%, 680px); margin: 0 auto; padding: 64px 16px 48px 34px; position: relative; }
+html:not(.canvas) main::before { content: ""; position: absolute; left: 18px; top: 72px; bottom: 60px; border-left: 1px solid var(--wire); }
+html:not(.canvas) .col { margin-bottom: 28px; }
+html:not(.canvas) .col > .stack > .card::before, html:not(.canvas) .col > .card::before, html:not(.canvas) .col > .frame::before { content: ""; position: absolute; left: -17px; top: 24px; width: 16px; border-top: 1px solid var(--wire); }
+html:not(.canvas) .col > .card, html:not(.canvas) .col > .stack > .card { overflow: visible; }
+html:not(.canvas) .col > .card::after, html:not(.canvas) .col > .stack > .card::after { border-radius: 10px 10px 0 0; }
+html:not(.canvas) .col > .frame { position: relative; background: none; padding: 12px; }
+html:not(.canvas) .pairs { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+@media (max-width: 460px) { .stats--3 { grid-template-columns: 1fr 1fr; } .intro h1 { font-size: 34px; } }
+
+/* Canvas */
+html.canvas, html.canvas body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+.canvas #stage { position: fixed; inset: 0; overflow: hidden; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.canvas #stage.drag { cursor: grabbing; }
+.canvas #contact { user-select: text; -webkit-user-select: text; }
+.canvas #world { position: absolute; left: 0; top: 0; width: 1px; height: 1280px; transform-origin: 0 0; will-change: transform; }
+.canvas main { display: contents; }
+.canvas #topo, .canvas #wires { display: block; position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: visible; pointer-events: none; }
+.canvas #topo path { fill: none; stroke: var(--topo); stroke-width: 1; }
+.canvas #topo path.major { stroke: var(--topo-major); }
+.canvas #wires path { fill: none; stroke: var(--wire); stroke-width: 1; transition: stroke .15s; }
+.canvas #wires path.lit { stroke: var(--ink); }
+.canvas #wires circle { fill: var(--pulse); }
+.canvas .col { position: absolute; left: var(--x); width: var(--w, 320px); }
+.canvas #projects .stack { grid-template-columns: 1fr 1fr; align-items: start; }
+.canvas .up { bottom: calc(100% - 640px + 34px); }
+.canvas .down { top: calc(640px + 34px); }
+.canvas .on, .canvas .after { top: 0; } /* the script places these */
+
+.canvas .rail { position: fixed; z-index: 3; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; gap: 2px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+.rail a { padding: 5px 11px; border-radius: 5px; font: 400 12px/1.4 var(--mono); color: var(--muted); text-decoration: none; white-space: nowrap; }
+.rail a:hover { color: var(--ink); }
+.rail a[aria-current] { color: var(--card); background: var(--ink); }
+.canvas .hint { display: block; position: fixed; z-index: 3; left: 50%; bottom: 62px; transform: translateX(-50%); transition: opacity .3s; pointer-events: none; white-space: nowrap; }
+.moved .hint { opacity: 0; }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="btn" href="#start">Luke Li</a>
+  <div class="btns">
+    <a class="btn" href="mailto:lukeli@berkeley.edu">Email me</a>
+    <a class="btn btn--main" href="resume.pdf" download="Luke-Li-Resume.pdf">Download resume</a>
+  </div>
+</header>
+
+<div id="stage">
+<div id="world">
+<svg id="topo" aria-hidden="true"></svg>
+<svg id="wires" aria-hidden="true"></svg>
+<main>
+
+  <div class="col on" style="--x:0px;--w:420px" id="start" data-stop>
+    <article class="card intro">
+      <p class="card__when mono"><span>Newest first</span><span>Berkeley, CA</span></p>
+      <h1 style="margin-top:12px">Luke Li</h1>
+      <p class="intro__lead">Applied math at Berkeley, published ML researcher, and founder of Everest, which signed three clients and $450K in committed compute within two months of starting.</p>
+      <p class="intro__sub">Start with what I’m building now, then follow the line back through my research, work and awards.</p>
+      <div class="btns"><a class="btn btn--main" href="#experience">See my experience</a><a class="btn" href="#awards">Jump to awards</a></div>
+    </article>
+  </div>
+
+  <section class="col on" style="--x:540px;--w:600px" id="everest" aria-labelledby="everest-h" data-stop>
+    <article class="card feature" style="--brand:#cfe3f5">
+      <div class="card__id">
+        <img class="logo" src="assets/logos/everest.svg" alt="Everest logo" width="48" height="48">
+        <div><h2 id="everest-h">Everest</h2><p class="mono">Founder · Sep 2026 to now · Berkeley</p></div>
+      </div>
+      <p class="feature__lead">A dorm idea turned into our first contract in three weeks. We build private AI that runs on a company’s own hardware.</p>
+      <dl class="stats">
+        <div><dd>3</dd><dt>Clients signed</dt></div>
+        <div><dd>$450K</dd><dt>Committed compute</dt></div>
+        <div><dd>$120M+</dd><dt>Largest client</dt></div>
+        <div><dd>11 TB</dd><dt>Data worked with</dt></div>
+        <div><dd>50+</dd><dt>Unique applications connected</dt></div>
+        <div><dd>6</dd><dt>People on the team</dt></div>
+      </dl>
+      <ol class="clients" aria-label="Clients">
+        <li><p class="mono">Client 1</p><p class="clients__name">$120M+ biotech</p><p class="mono">Deployed · 1,000+ research papers connected</p></li>
+        <li><p class="mono">Client 2</p><p class="clients__name">Series B medtech</p><p class="mono">60 staff</p></li>
+        <li><p class="mono">Client 3</p><p class="clients__name">Series A biotech</p><p class="mono">40 staff</p></li>
+      </ol>
+      <ul class="pts">
+        <li>Built an air-gapped AI platform that turns a life-sciences company’s meetings, emails and literature into one private, searchable knowledge base.</li>
+      </ul>
+      <p style="margin-top:14px"><a href="https://everest-tech.netlify.app/" target="_blank" rel="noopener">See the Everest site</a></p>
+    </article>
+  </section>
+
+  <section class="col up" style="--x:1260px" id="now" aria-label="Studying" data-stop>
+    <h2 class="col__h">Studying</h2>
+    <article class="card" id="berkeley" style="--brand:#FDB515">
+      <div class="card__id">
+        <p class="card__when mono"><span>University</span><span>Expected May 2029</span></p>
+        <img class="logo" src="assets/logos/berkeley.svg" alt="UC Berkeley logo" width="40" height="40">
+        <div><h3>UC Berkeley</h3><p class="mono">Applied math and environmental economics</p></div>
+      </div>
+      <p class="card__line">BA in Applied Mathematics and BS in Environmental Economics and Policy.</p>
+    </article>
+  </section>
+
+  <section class="col down" style="--x:1260px" aria-label="Skills">
+    <h2 class="col__h">Skills</h2>
+    <article class="card" id="skills">
+      <p class="card__when mono"><span>Tools I use</span><span>English, Mandarin</span></p>
+      <ul class="tags"><li>Python</li><li>C++</li><li>TypeScript</li><li>SQL</li><li>PyTorch</li><li>TensorFlow</li><li>Scikit-Learn</li><li>React</li><li>FastAPI</li><li>Docker</li><li>AWS</li><li>Supabase</li></ul>
+    </article>
+  </section>
+
+  <section class="col on" style="--x:1700px;--w:860px" id="experience" aria-label="Experience" data-stop>
+    <div class="frame">
+      <h2 class="frame__h"><span>Experience</span><span>4</span></h2>
+      <div class="pairs">
+        <article class="card" id="uc3m" style="--brand:#000E78">
+          <div class="card__id">
+            <p class="card__when mono"><span>Machine learning research intern</span><span>Feb to Jul 2025</span></p>
+            <img class="logo" src="assets/logos/uc3m.svg" alt="Universidad Carlos III de Madrid logo" width="40" height="40">
+            <div><h3>Universidad Carlos III de Madrid</h3><p class="mono">Remote</p></div>
+          </div>
+          <ul class="pts">
+            <li>Trained TensorFlow networks and ARIMA models on 1,000+ observations across about 300 cities.</li>
+            <li>Found that policies adopted midyear were counted as active all year. Fixing the exposure windows raised R² from 0.67 to 0.85.</li>
+          </ul>
+        </article>
+        <article class="card" id="columbia" style="--brand:#B9D9EB">
+          <div class="card__id">
+            <p class="card__when mono"><span>Research intern</span><span>Nov 2024 to Jan 2025</span></p>
+            <img class="logo" src="assets/logos/columbia.svg" alt="Columbia University logo" width="40" height="40">
+            <div><h3>Columbia University</h3><p class="mono">Dr. Ceyhun Elgin’s lab · New York</p></div>
+          </div>
+          <ul class="pts">
+            <li>The only high-school intern chosen from 600+ undergraduate and graduate applicants.</li>
+            <li>Combined nonpublic EV and transit data from 50 cities, then built a two-way fixed-effects model across 100+ factors.</li>
+            <li>Evaluated scenarios covering $500B+ in annual environmental-policy spending.</li>
+            <li>First-author paper in IJHSR and RSEP’s Young Researcher Award. <a href="https://doi.org/10.36838/v7i11.101" target="_blank" rel="noopener">Read the paper</a> · <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5371836" target="_blank" rel="noopener">SSRN</a></li>
+          </ul>
+        </article>
+        <article class="card" id="jnj" style="--brand:#EB1700">
+          <div class="card__id">
+            <p class="card__when mono"><span>Antibody research intern</span><span>Jun to Aug 2024</span></p>
+            <img class="logo" src="assets/logos/jnj.png" alt="Johnson &amp; Johnson logo" width="40" height="40">
+            <div><h3>Johnson &amp; Johnson</h3><p class="mono">Redwood City, CA</p></div>
+          </div>
+          <ul class="pts">
+            <li>One of five interns chosen from 500+ applicants.</li>
+            <li>Supported preclinical development of the bispecific antibody therapeutic PX128.</li>
+            <li>Analyzed sequence data in Geneious Prime.</li>
+          </ul>
+        </article>
+        <article class="card" id="eiger" style="--brand:#0D5E87">
+          <div class="card__id">
+            <p class="card__when mono"><span>Lab and R&amp;D</span></p>
+            <img class="logo" src="assets/logos/eiger.png" alt="Eiger BioPharmaceuticals logo" width="40" height="40">
+            <div><h3>Eiger BioPharmaceuticals</h3><p class="mono">Biopharma company</p></div>
+          </div>
+          <ul class="pts">
+            <li>General lab work and R&amp;D support.</li>
+            <li>Sequence analysis.</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="col on" style="--x:2680px;--w:1060px" id="awards" aria-label="Awards" data-stop>
+    <div class="frame">
+      <h2 class="frame__h"><span>Awards and publications</span><span>7</span></h2>
+      <div class="pairs" style="--cols:4">
+        <article class="card" id="rsep">
+          <div class="card__id">
+            <p class="card__when mono"><span>Research</span><span>Shanghai, Jul 2025</span></p>
+            <img class="logo" src="assets/icons/ui-award.svg" alt="" width="40" height="40">
+            <h3>Young Researcher Award</h3>
+          </div>
+          <p class="card__line">Presented my carbon-emission paper at the 41st RSEP International Multidisciplinary Conference. The only high-school or undergraduate participant among 60+ researchers. <a href="https://rsepconferences.com/wp-content/uploads/2025/07/Shanghai-Conf-Program-2025-1.pdf" target="_blank" rel="noopener">See the program</a></p>
+        </article>
+        <article class="card" id="paper">
+          <div class="card__id">
+            <p class="card__when mono"><span>Publication</span><span>Nov 2025</span></p>
+            <img class="logo" src="assets/logos/ijhsr.png" alt="IJHSR logo" width="40" height="40">
+            <h3>Paper in IJHSR</h3>
+          </div>
+          <p class="card__line">“Deriving Transportational Carbon Emission Reduction Strategy Efficiency with an Empirical Model.” First author. EV versus transit carbon-abatement returns across 50 cities. Vol. 7, issue 11. <a href="https://doi.org/10.36838/v7i11.101" target="_blank" rel="noopener">Read the paper</a> · <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5371836" target="_blank" rel="noopener">SSRN</a></p>
+        </article>
+        <article class="card" id="locke" style="--brand:#B08D57">
+          <div class="card__id">
+            <p class="card__when mono"><span>Writing</span><span>Top 0.5%</span></p>
+            <img class="logo" src="assets/logos/locke.png" alt="John Locke Institute logo" width="40" height="40">
+            <h3>John Locke Essay Competition</h3>
+          </div>
+          <p class="card__line">Top 0.5% of submissions (200 of 33,000).</p>
+        </article>
+        <article class="card" id="stanford" style="--brand:#8C1515">
+          <div class="card__id">
+            <p class="card__when mono"><span>AI</span><span>1st of 45 teams</span></p>
+            <img class="logo" src="assets/logos/stanford.png" alt="Stanford University logo" width="40" height="40">
+            <h3>Stanford AI hackathon</h3>
+          </div>
+          <p class="card__line">Division winner. Built Antibody, AI decision gates that check AI-drafted legal memos and approve, hold or block them. <a href="https://github.com/lukeli170/Antibody-v2" target="_blank" rel="noopener">See the code</a></p>
+        </article>
+        <article class="card" id="crowe" style="--brand:#F5A800">
+          <div class="card__id">
+            <p class="card__when mono"><span>Business</span><span>Finalist, 2026</span></p>
+            <img class="logo" src="assets/logos/crowe.png" alt="Crowe logo" width="40" height="40">
+            <h3>Crowe National Case Competition</h3>
+          </div>
+          <p class="card__line">Top 8 of 170+ teams.</p>
+        </article>
+        <article class="card" id="debate">
+          <div class="card__id">
+            <p class="card__when mono"><span>Debate</span><span>2x</span></p>
+            <img class="logo" src="assets/icons/ui-mic.svg" alt="" width="40" height="40">
+            <h3>NPDL Tournament of Champions</h3>
+          </div>
+          <p class="card__line">Qualified twice. Top 2% of 600+ teams.</p>
+        </article>
+        <article class="card" id="aime" style="--brand:#2E2A6B">
+          <div class="card__id">
+            <p class="card__when mono"><span>Math</span><span>2x</span></p>
+            <img class="logo" src="assets/logos/maa.png" alt="Mathematical Association of America logo" width="40" height="40">
+            <h3>AIME qualifier</h3>
+          </div>
+          <p class="card__line">Qualified in 2023 and 2024.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="col up" style="--x:3860px" id="leadership" aria-label="Leadership" data-stop>
+    <h2 class="col__h">Leadership</h2>
+    <div class="stack">
+      <article class="card" id="efc">
+        <div class="card__id">
+          <p class="card__when mono"><span>Founder and advisor</span><span>Dec 2024 to now</span></p>
+          <img class="logo" src="assets/icons/ui-landmark.svg" alt="" width="40" height="40">
+          <div><h3>Economics For Change</h3><p class="mono">Financial-education nonprofit</p></div>
+        </div>
+        <ul class="pts">
+          <li>100+ members across six chapters.</li>
+          <li>$6,500+ raised from J&amp;J, JPMorgan, Visa, the Leadership &amp; Innovation Lab and others.</li>
+        </ul>
+        <p class="card__line"><a href="https://econforchange.com" target="_blank" rel="noopener">See the site</a></p>
+      </article>
+    </div>
+  </section>
+
+  <section class="col down" style="--x:3860px;--w:640px" id="projects" aria-label="Projects">
+    <h2 class="col__h">Projects</h2>
+    <div class="stack">
+      <article class="card" id="resale">
+        <div class="card__id">
+          <p class="card__when mono"><span>Founder and operator</span><span>Jan to Aug 2026</span></p>
+          <img class="logo" src="assets/icons/ui-shirt.svg" alt="" width="40" height="40">
+          <div><h3>Clothing resale business</h3><p class="mono">Remote</p></div>
+        </div>
+        <ul class="pts">
+          <li>$11K profit from 500+ concurrent listings across eight marketplaces.</li>
+          <li>Ran sourcing and listing with 5+ agents, data scrapers and automation tools.</li>
+          <li>Built algorithms to find mispriced high-end Italian menswear, including Kiton and Brunello Cucinelli.</li>
+        </ul>
+      </article>
+      <article class="card" id="tutoring">
+        <div class="card__id">
+          <p class="card__when mono"><span>Tutoring</span><span>8 weeks</span></p>
+          <img class="logo" src="assets/icons/ui-graduation-cap.svg" alt="" width="40" height="40">
+          <h3>SAT tutoring</h3>
+        </div>
+        <dl class="stats">
+          <div><dd>25</dd><dt>Students</dt></div>
+          <div><dd>+160</dd><dt>Average score gain</dt></div>
+        </dl>
+        <p class="card__line">Over eight weeks of tutoring.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="col on" style="--x:4620px;--w:760px" id="hs" aria-label="High school" data-stop>
+    <div class="frame">
+      <h2 class="frame__h"><span>High school</span><span>San Mateo, CA</span></h2>
+      <div class="pairs">
+        <article class="card" id="smhs">
+          <div class="card__id">
+            <p class="card__when mono"><span>Graduated</span><span>Rank 4 of 390</span></p>
+            <img class="logo" src="assets/logos/smhs.png" alt="San Mateo High School logo" width="40" height="40">
+            <h3>San Mateo High School</h3>
+          </div>
+          <dl class="stats">
+            <div><dd>4 of 390</dd><dt>Class rank</dt></div>
+            <div><dd>1560</dd><dt>SAT, out of 1600</dt></div>
+            <div><dd>4.5</dd><dt>Weighted GPA</dt></div>
+            <div><dd>13 + 7</dd><dt>AP + dual-enrollment courses</dt></div>
+          </dl>
+        </article>
+        <article class="card" id="clash">
+          <div class="card__id">
+            <p class="card__when mono"><span>Founder and president</span><span>Aug 2025 to May 2026</span></p>
+            <img class="logo" src="assets/icons/ui-swords.svg" alt="" width="40" height="40">
+            <div><h3>Clash Royale Club</h3><p class="mono">300+ members</p></div>
+          </div>
+          <p class="card__line">The largest club in school history. Its campaigns reached 100,000+ Instagram views.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div class="col after" style="--x:4620px;--w:760px" id="end">
+    <section class="frame" id="interests" aria-label="Interests" data-stop>
+      <h2 class="frame__h"><span>Interests</span></h2>
+      <ul class="pairs" style="--cols:4">
+        <li class="tile">Wrestling and MMA</li>
+        <li class="tile">Chess <span class="mono">2100 Elo</span></li>
+        <li class="tile">Public markets</li>
+        <li class="tile">Thrifting</li>
+      </ul>
+      <p class="blurb">Four-year varsity wrestler and captain. #4 in the Central Coast Section, 2025.</p>
+    </section>
+    <footer class="card" id="contact">
+      <p class="card__when mono"><span>Contact</span><span>&copy; 2026 Luke Li</span></p>
+      <h3 style="margin-top:12px"><a href="mailto:lukeli@berkeley.edu">lukeli@berkeley.edu</a></h3>
+      <p style="margin-top:6px;color:var(--muted)"><a href="https://github.com/lukeli170" target="_blank" rel="noopener">GitHub</a> &nbsp; <a href="https://linkedin.com/in/lukeli-berkeley" target="_blank" rel="noopener">LinkedIn</a></p>
+      <p class="mono credit">Logos belong to their owners. Icons by Lucide (ISC).</p>
+    </footer>
+  </div>
+
+</main>
+</div>
+</div>
+
+<nav class="rail" aria-label="Timeline">
+  <a href="#everest">Everest</a>
+  <a href="#experience">Experience</a>
+  <a href="#awards">Awards</a>
+  <a href="#leadership">Leadership</a>
+  <a href="#hs">High school</a>
+  <a href="#interests">Interests</a>
+</nav>
+<p class="hint mono">Scroll, drag or use the arrow keys</p>
+
+<script>
+(() => {
+  const root = document.documentElement, stage = document.getElementById('stage'), world = document.getElementById('world');
+  const wires = document.getElementById('wires'), topo = document.getElementById('topo'), $ = id => document.getElementById(id), $$ = q => [...document.querySelectorAll(q)];
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches, wide = matchMedia('(min-width: 900px)');
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const ns = 'http://www.w3.org/2000/svg', S = 640;
+
+  // f: 1 is Everest's sky, 0 is night. Cards fade over the middle half; text flips where the card is mid-grey.
+  const setFade = f => {
+    root.style.setProperty('--f', f.toFixed(3));
+    const g = clamp((f - .25) / .5, 0, 1);
+    root.style.setProperty('--g', g.toFixed(3));
+    root.style.setProperty('--m', Math.min(1, Math.abs(g - .5) * 4).toFixed(3));
+    root.toggleAttribute('data-sky', g > .5);
+  };
+
+  // world position of an element; offset* ignores the camera's transform
+  const box = el => {
+    let x = 0, y = 0;
+    for (let e = el; e && e !== world; e = e.offsetParent) { x += e.offsetLeft; y += e.offsetTop; }
+    return { x, y, w: el.offsetWidth, h: el.offsetHeight };
+  };
+
+  let scale = 1, path = [], length = 0, fadeFrom = 0, fadeTo = 1;
+  let t = 0, off = { x: 0, y: 0 }, cam = null, raf = 0;
+
+  function place() {
+    $$('.on').forEach(c => { c.style.top = S - c.offsetHeight / 2 + 'px'; });
+    const hs = box($('hs'));
+    $('end').style.top = hs.y + hs.h + 80 + 'px';
+  }
+
+  // Faint contour lines, like a trail map, with the summit on Everest
+  function drawTopo() {
+    const ev = box($('everest')), ex = ev.x + ev.w / 2, ey = S;
+    const right = Math.max(...$$('.col').map(c => box(c).x + c.offsetWidth));
+    const c = 26, x0 = -900, y0 = -500, nx = Math.ceil((right + 1800) / c), ny = Math.ceil(2700 / c);
+    const hash = (i, j) => { const s = Math.sin(i * 127.1 + j * 311.7) * 43758.5453; return s - Math.floor(s); };
+    const noise = (x, y) => {
+      const i = Math.floor(x), j = Math.floor(y), u = x - i, v = y - j, su = u * u * (3 - 2 * u), sv = v * v * (3 - 2 * v);
+      const a = hash(i, j), b = hash(i + 1, j), d = hash(i, j + 1), e = hash(i + 1, j + 1);
+      return a + (b - a) * su + (d - a) * sv + (a - b - d + e) * su * sv;
+    };
+    const h = new Float32Array((nx + 1) * (ny + 1));
+    for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) {
+      const x = x0 + i * c, y = y0 + j * c, d2 = (x - ex) ** 2 + ((y - ey) * 1.3) ** 2;
+      h[j * (nx + 1) + i] = 1.25 * Math.exp(-d2 / (2 * 900 ** 2)) + .55 * noise(x / 640, y / 640) + .22 * noise(x / 250 + 9, y / 250 + 4);
+    }
+    // marching squares; corners tl=8 tr=4 br=2 bl=1, edges 0 top 1 right 2 bottom 3 left
+    const SEG = [[], [[3, 2]], [[2, 1]], [[3, 1]], [[0, 1]], [[0, 3], [2, 1]], [[0, 2]], [[0, 3]], [[0, 3]], [[0, 2]], [[0, 1], [3, 2]], [[0, 1]], [[3, 1]], [[2, 1]], [[3, 2]], []];
+    const minor = [], major = [];
+    for (let k = 1; k <= 22; k++) {
+      const l = k * .075, out = k % 4 ? minor : major;
+      for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+        const p = j * (nx + 1) + i, a = h[p], b = h[p + 1], cc = h[p + nx + 2], d = h[p + nx + 1];
+        const id = (a > l) << 3 | (b > l) << 2 | (cc > l) << 1 | (d > l);
+        if (!id || id === 15) continue;
+        const X = x0 + i * c, Y = y0 + j * c;
+        const pt = e => e === 0 ? [X + c * (l - a) / (b - a), Y] : e === 1 ? [X + c, Y + c * (l - b) / (cc - b)]
+          : e === 2 ? [X + c * (l - d) / (cc - d), Y + c] : [X, Y + c * (l - a) / (d - a)];
+        for (const [e1, e2] of SEG[id]) { const p1 = pt(e1), p2 = pt(e2); out.push(`M${p1[0] | 0} ${p1[1] | 0}L${p2[0] | 0} ${p2[1] | 0}`); }
+      }
+    }
+    topo.innerHTML = `<path d="${minor.join('')}"/><path class="major" d="${major.join('')}"/>`;
+  }
+
+  function drawWires() {
+    wires.textContent = '';
+    const add = (d, card, pulses) => {
+      const p = document.createElementNS(ns, 'path');
+      p.setAttribute('d', d);
+      if (card) p.dataset.card = card;
+      wires.append(p);
+      if (reduced) return;
+      const secs = p.getTotalLength() / 110;
+      for (let i = 0; i < pulses; i++) {
+        const c = document.createElementNS(ns, 'circle'), m = document.createElementNS(ns, 'animateMotion');
+        c.setAttribute('r', 2);
+        m.setAttribute('path', d);
+        m.setAttribute('dur', secs + 's');
+        m.setAttribute('begin', (-Math.random() * secs) + 's');
+        m.setAttribute('repeatCount', 'indefinite');
+        c.append(m);
+        wires.append(c);
+      }
+    };
+    const elbow = (x1, y1, x2, y2, mx) => {
+      const r = Math.min(10, Math.abs(y2 - y1) / 2, Math.abs(mx - x1), Math.abs(x2 - mx)), s = y2 > y1 ? 1 : -1;
+      return `M${x1} ${y1}H${mx - r}Q${mx} ${y1} ${mx} ${y1 + s * r}V${y2 - s * r}Q${mx} ${y2} ${mx + r} ${y2}H${x2}`;
+    };
+    const a = box($('start')), hs = box($('hs'));
+    add(`M${a.x + a.w} ${S}H${hs.x}`, null, 4);
+    $$('.up .card, .down .card').forEach(c => {
+      const b = box(c), y = b.y + 30, trunk = b.x - 44;
+      if (b.x - box(c.closest('.col')).x > 4) return; // a card beside another gets no wire of its own
+      add(elbow(trunk - 10, S, b.x, y, trunk), c.id, 1);
+    });
+    const end = box($('interests'));
+    add(`M${hs.x + hs.w / 2} ${hs.y + hs.h}V${end.y}`, null, 1);
+  }
+
+  function buildPath() {
+    path = $$('[data-stop]').map(el => {
+      const b = box(el);
+      return { id: el.id, el, x: b.x + b.w / 2, y: b.y + b.h / 2 };
+    });
+    path[0].x = (path[0].x + path[1].x) / 2 + 40; // open on the intro and Everest together
+    // Frame everything in view between the header and the rail; too tall to fit, show its top.
+    const H = innerHeight / scale, W = innerWidth / scale, top = 72 / scale, bottom = 84 / scale;
+    const cols = $$('.col').map(box);
+    path.forEach(p => {
+      if (p.el.closest('.after')) return;
+      const seen = cols.filter(c => c.x < p.x + W / 2 && c.x + c.w > p.x - W / 2);
+      const t = Math.min(...seen.map(c => c.y)), b = Math.max(...seen.map(c => c.y + c.h));
+      p.y = b - t <= H - top - bottom ? (t + b) / 2 - (top - bottom) / 2 : t - top + H / 2;
+    });
+    length = 0;
+    path.forEach((p, i) => {
+      if (i) length += Math.hypot(p.x - path[i - 1].x, p.y - path[i - 1].y);
+      p.at = length;
+    });
+    fadeFrom = path.find(p => p.id === 'everest').x;
+    fadeTo = path.find(p => p.id === 'hs').x;
+  }
+
+  const pointAt = d => {
+    let i = 1;
+    while (i < path.length - 1 && path[i].at < d) i++;
+    const a = path[i - 1], b = path[i], k = clamp((d - a.at) / (b.at - a.at || 1), 0, 1);
+    return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k };
+  };
+
+  const target = () => { const p = pointAt(t); return { x: p.x + off.x, y: p.y + off.y }; };
+
+  function apply() {
+    const x = innerWidth / 2 - cam.x * scale, y = innerHeight / 2 - cam.y * scale;
+    world.style.transform = `translate(${x}px,${y}px) scale(${scale})`;
+    setFade(1 - clamp((cam.x - fadeFrom) / (fadeTo - fadeFrom), 0, 1));
+    const here = path.reduce((a, b) => Math.abs(b.at - t) < Math.abs(a.at - t) ? b : a);
+    const shown = { start: 'everest', now: 'everest' }[here.id] ?? here.id;
+    $$('.rail a').forEach(l => l.hash === '#' + shown ? l.setAttribute('aria-current', 'true') : l.removeAttribute('aria-current'));
+  }
+
+  function tick() {
+    const g = target(), k = reduced ? 1 : .13;
+    cam.x += (g.x - cam.x) * k; cam.y += (g.y - cam.y) * k;
+    apply();
+    raf = Math.hypot(g.x - cam.x, g.y - cam.y) > .4 ? requestAnimationFrame(tick) : 0;
+  }
+  const move = () => { if (!raf && cam) raf = requestAnimationFrame(tick); };
+
+  const interacted = () => root.classList.add('moved');
+
+  function goTo(el, instant) {
+    const b = box(el), cx = b.x + b.w / 2, stop = path.find(p => p.id === el.id);
+    t = (stop || path.reduce((a, p) => Math.abs(p.x - cx) < Math.abs(a.x - cx) ? p : a)).at;
+    const p = pointAt(t);
+    off = stop ? { x: 0, y: 0 } : { x: cx - p.x, y: b.y + b.h / 2 - p.y };
+    if (instant) { cam = target(); apply(); } else move();
+  }
+
+  function layoutCanvas() {
+    root.classList.add('canvas');
+    scale = clamp(Math.min(innerHeight / 960, innerWidth / 1180), .7, 1);
+    const k = length ? t / length : 0; // the path's length depends on the window, so keep the camera's share of it
+    place(); buildPath(); drawWires(); drawTopo();
+    t = k * length;
+    cam = target(); apply();
+  }
+
+  function layoutFlow() {
+    root.classList.remove('canvas');
+    world.removeAttribute('style'); wires.textContent = ''; topo.textContent = '';
+    $$('.on, .after').forEach(c => { c.style.top = ''; });
+    cam = null;
+    flowFade();
+  }
+
+  function flowFade() {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    setFade(1 - clamp(scrollY / (max * .85 || 1), 0, 1));
+  }
+
+  const layout = () => wide.matches ? layoutCanvas() : layoutFlow();
+
+  addEventListener('scroll', () => { if (!wide.matches) flowFade(); }, { passive: true });
+  addEventListener('resize', layout);
+
+  stage.addEventListener('wheel', e => {
+    if (!cam || e.ctrlKey) return;
+    e.preventDefault(); interacted();
+    t = clamp(t + (e.deltaX + e.deltaY) * (e.deltaMode ? 30 : 1) / scale, 0, length);
+    off.x *= .86; off.y *= .86;
+    move();
+  }, { passive: false });
+
+  let drag = null;
+  // anchor jumps and focus scroll the stage itself, which would shift the whole canvas out of the camera's control
+  stage.addEventListener('scroll', () => { stage.scrollTop = stage.scrollLeft = 0; });
+  stage.addEventListener('pointerdown', e => {
+    if (!cam || e.target.closest('a, #contact')) return;
+    drag = { x: e.clientX, y: e.clientY };
+    stage.setPointerCapture(e.pointerId);
+    stage.classList.add('drag');
+  });
+  stage.addEventListener('pointermove', e => {
+    if (!drag) return;
+    off.x -= (e.clientX - drag.x) / scale; off.y -= (e.clientY - drag.y) / scale;
+    drag = { x: e.clientX, y: e.clientY };
+    interacted(); move();
+  });
+  const release = () => { drag = null; stage.classList.remove('drag'); };
+  stage.addEventListener('pointerup', release);
+  stage.addEventListener('pointercancel', release);
+
+  addEventListener('keydown', e => {
+    if (!cam) return;
+    const step = { ArrowRight: 220, ArrowDown: 220, ArrowLeft: -220, ArrowUp: -220 }[e.key];
+    if (!step) return;
+    e.preventDefault(); interacted();
+    t = clamp(t + step, 0, length); off = { x: 0, y: 0 };
+    move();
+  });
+
+  // Tabbing to something off screen brings it into view
+  stage.addEventListener('focusin', e => {
+    stage.scrollTo(0, 0); // the browser's own scroll-into-view would fight the camera
+    if (cam && e.target.matches(':focus-visible')) goTo(e.target.closest('.card, .frame, .col'));
+  });
+
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]');
+    const el = a && $(a.hash.slice(1));
+    if (!cam || !el) return;
+    e.preventDefault(); interacted();
+    goTo(el);
+    history.replaceState(null, '', a.hash);
+  });
+
+  // Lighting a card's wire shows where it joins the line
+  stage.addEventListener('pointerover', e => {
+    const id = e.target.closest('.card')?.id;
+    $$('#wires path').forEach(p => p.classList.toggle('lit', !!id && p.dataset.card === id));
+  });
+
+  layout();
+  // the web font changes card heights, so the path is rebuilt; mid-glide, the camera keeps gliding to the new target
+  document.fonts?.ready.then(() => { if (!raf) return layout(); if (wide.matches) { place(); buildPath(); drawWires(); move(); } });
+  wide.addEventListener('change', layout);
+  const linked = location.hash && $(location.hash.slice(1));
+  if (linked) { interacted(); cam ? goTo(linked, true) : linked.scrollIntoView(); }
+})();
+</script>
+</body>
+</html>

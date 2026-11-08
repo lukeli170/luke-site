@@ -1,0 +1,12 @@
+.DS_Store
+.taste-skill/
+# design-kit copies the page does not use
+assets/backgrounds/
+assets/diagrams/
+assets/layout/
+assets/motion/
+assets/ui/
+assets/system.css
+assets/system.js
+# holds a phone number and is out of date; add a cleaned copy deliberately
+resume.pdf
