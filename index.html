@@ -83,17 +83,16 @@ html:not(.canvas) .clients::before, html:not(.canvas) .clients li::before { disp
 .stats dd { font-size: 20px; line-height: 1.25; }
 .stats dt { font: 400 12px/1.4 var(--mono); color: var(--muted); grid-row: 2; }
 .stats > div { display: grid; align-content: start; }
+.stats dd.sub { font: italic 400 12px/1.4 var(--mono); color: var(--muted); white-space: nowrap; }
 .stats > .wide { grid-column: 1 / -1; }
-.courses-dd { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
-.courses[open] { flex-basis: 100%; }
-.courses summary { list-style: none; display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 6px 12px; border: 1px solid var(--wire); border-radius: 6px; font: 400 12px/1 var(--mono); color: var(--ink); cursor: pointer; user-select: none; }
-.courses summary::-webkit-details-marker { display: none; }
-.courses summary::before { content: "+"; font-size: 15px; width: 1ch; }
-.courses[open] summary::before { content: "\2212"; }
-.courses .c, .courses[open] .o { display: none; }
-.courses[open] .c { display: inline; }
-.courses summary:hover { border-color: var(--muted); }
-.courses summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.courses-dd { display: flex; align-items: center; gap: 12px; }
+.courses__btn { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 6px 12px; border: 1px solid var(--wire); border-radius: 6px; background: none; font: 400 12px/1 var(--mono); color: var(--ink); cursor: pointer; user-select: none; }
+.courses__btn::before { content: "+"; font-size: 15px; width: 1ch; }
+.courses__btn[aria-expanded="true"]::before { content: "\2212"; }
+.courses__btn .c, .courses__btn[aria-expanded="true"] .o { display: none; }
+.courses__btn[aria-expanded="true"] .c { display: inline; }
+.courses__btn:hover { border-color: var(--muted); }
+.courses__btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .courses__note { margin: 10px 0 6px; font-size: 12px; font-style: italic; color: var(--muted); }
 .courses ol { margin: 0; padding-left: 22px; font-size: 14px; line-height: 1.6; columns: 2; column-gap: 28px; }
 .courses li { break-inside: avoid; }
@@ -414,9 +413,9 @@ html.canvas, html.canvas body { height: 100%; overflow: hidden; overscroll-behav
             <h3>San Mateo High School</h3>
           </div>
           <dl class="stats">
-            <div><dd>1560</dd><dt>SAT, out of 1600</dt><dd style="font-size:13px"><em>780 math, 780 english</em></dd></div>
+            <div><dd>1560</dd><dt>SAT, out of 1600</dt><dd class="sub"><em>780 math, 780 english</em></dd></div>
             <div><dd>4.5</dd><dt>Weighted GPA</dt></div>
-            <div class="wide"><dd class="courses-dd">13 + 11 <details class="courses"><summary><span class="o">Expand courses</span><span class="c">Collapse</span></summary><p class="courses__note">DE = dual enrollment, college courses taken for college credit.</p><ol>
+            <div class="wide"><dd class="courses-dd">24 <button type="button" class="courses__btn" id="coursebtn" aria-expanded="false" aria-controls="courselist"><span class="o">Expand</span><span class="c">Collapse</span></button></dd><dt>AP + DE courses</dt><dd class="sub"><em>Top 0.1% rigor <a href="https://apcentral.collegeboard.org/about-ap/ap-data-research/national-state-data" target="_blank" rel="noopener">[1]</a> <a href="https://ccrc.tc.columbia.edu/easyblog/how-many-students-are-taking-dual-enrollment-courses-in-high-school-new-national-state-and-college-level-data.html" target="_blank" rel="noopener">[2]</a></em></dd><dd class="courses" id="courselist" hidden><p class="courses__note">DE = dual enrollment, college courses taken for college credit.</p><ol>
               <li>Computer Vision</li>
               <li>Design and Analysis of Algorithms</li>
               <li>Data Structures</li>
@@ -441,7 +440,7 @@ html.canvas, html.canvas body { height: 100%; overflow: hidden; overscroll-behav
               <li>AP World History</li>
               <li>AP Chinese</li>
               <li>AP Psychology</li>
-            </ol><p class="courses__note">Top 0.1% rigor <a href="https://apcentral.collegeboard.org/about-ap/ap-data-research/national-state-data" target="_blank" rel="noopener">[1]</a> <a href="https://ccrc.tc.columbia.edu/easyblog/how-many-students-are-taking-dual-enrollment-courses-in-high-school-new-national-state-and-college-level-data.html" target="_blank" rel="noopener">[2]</a></p></details></dd><dt>AP + dual-enrollment courses</dt></div>
+            </ol></dd></div>
           </dl>
         </article>
         <article class="card" id="clash">
@@ -590,6 +589,14 @@ html.canvas, html.canvas body { height: 100%; overflow: hidden; overscroll-behav
     add(`M${hs.x + hs.w / 2} ${hs.y + hs.h}V${end.y}`, null, 1);
   }
 
+  function measure() {
+    length = 0;
+    path.forEach((p, i) => {
+      if (i) length += Math.hypot(p.x - path[i - 1].x, p.y - path[i - 1].y);
+      p.at = length;
+    });
+  }
+
   function buildPath() {
     path = $$('[data-stop]').map(el => {
       const b = box(el);
@@ -605,11 +612,7 @@ html.canvas, html.canvas body { height: 100%; overflow: hidden; overscroll-behav
       const t = Math.min(...seen.map(c => c.y)), b = Math.max(...seen.map(c => c.y + c.h));
       p.y = b - t <= H - top - bottom ? (t + b) / 2 - (top - bottom) / 2 : t - top + H / 2;
     });
-    length = 0;
-    path.forEach((p, i) => {
-      if (i) length += Math.hypot(p.x - path[i - 1].x, p.y - path[i - 1].y);
-      p.at = length;
-    });
+    measure();
     fadeFrom = path.find(p => p.id === 'everest').x;
     fadeTo = path.find(p => p.id === 'hs').x;
   }
@@ -689,7 +692,7 @@ html.canvas, html.canvas body { height: 100%; overflow: hidden; overscroll-behav
   // anchor jumps and focus scroll the stage itself, which would shift the whole canvas out of the camera's control
   stage.addEventListener('scroll', () => { stage.scrollTop = stage.scrollLeft = 0; });
   stage.addEventListener('pointerdown', e => {
-    if (!cam || e.target.closest('a, summary, #contact')) return; // pointer capture would swallow the click on these
+    if (!cam || e.target.closest('a, button, #contact')) return; // pointer capture would swallow the click on these
     drag = { x: e.clientX, y: e.clientY };
     stage.setPointerCapture(e.pointerId);
     stage.classList.add('drag');
@@ -738,8 +741,18 @@ html.canvas, html.canvas body { height: 100%; overflow: hidden; overscroll-behav
   // the web font changes card heights, so the path is rebuilt; mid-glide, the camera keeps gliding to the new target
   document.fonts?.ready.then(() => { if (!raf) return layout(); if (wide.matches) { place(); buildPath(); drawWires(); move(); } });
   wide.addEventListener('change', layout);
-  // opening the course list changes the card's height, so re-place everything that hangs off it
-  document.addEventListener('toggle', layout, true);
+  // The course list grows the High school card downwards only. The camera and the stops above stay put;
+  // just push what hangs below it (Interests, Contact) down and redraw the wires.
+  $('coursebtn').addEventListener('click', e => {
+    const open = e.currentTarget.getAttribute('aria-expanded') !== 'true';
+    e.currentTarget.setAttribute('aria-expanded', open);
+    $('courselist').hidden = !open;
+    if (!cam) return;
+    const hs = box($('hs'));
+    $('end').style.top = hs.y + hs.h + 80 + 'px';
+    path.forEach(p => { if (p.el.closest('.after')) { const b = box(p.el); p.y = b.y + b.h / 2; } });
+    measure(); drawWires();
+  });
   const linked = location.hash && $(location.hash.slice(1));
   if (linked) { interacted(); cam ? goTo(linked, true) : linked.scrollIntoView(); }
 })();
