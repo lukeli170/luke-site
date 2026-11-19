@@ -83,6 +83,12 @@ html:not(.canvas) .clients::before, html:not(.canvas) .clients li::before { disp
 .stats dd { font-size: 20px; line-height: 1.25; }
 .stats dt { font: 400 12px/1.4 var(--mono); color: var(--muted); grid-row: 2; }
 .stats > div { display: grid; align-content: start; }
+.courses-dd { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; }
+.courses summary { list-style: none; font: 400 11px/1 var(--mono); color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 3px 6px; cursor: pointer; }
+.courses summary::-webkit-details-marker { display: none; }
+.courses[open] { flex-basis: 100%; }
+.courses__note { margin: 10px 0 4px; font-size: 12px; font-style: italic; color: var(--muted); }
+.courses ol { margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6; }
 .stats--3 { grid-template-columns: repeat(3, 1fr); }
 
 /* A card still waiting for facts from Luke. Remove the class once it's filled in. */
@@ -402,7 +408,32 @@ html.canvas, html.canvas body { height: 100%; overflow: hidden; overscroll-behav
             <div><dd>4 of 390</dd><dt>Class rank</dt></div>
             <div><dd>1560</dd><dt>SAT, out of 1600</dt></div>
             <div><dd>4.5</dd><dt>Weighted GPA</dt></div>
-            <div><dd>13 + 7</dd><dt>AP + dual-enrollment courses</dt></div>
+            <div><dd class="courses-dd">13 + 11 <details class="courses"><summary>courses</summary><p class="courses__note">DE = dual enrollment, college courses taken for college credit.</p><ol>
+              <li>Computer Vision</li>
+              <li>Design and Analysis of Algorithms</li>
+              <li>Data Structures</li>
+              <li>Multivariable Calculus</li>
+              <li>Calculus-Based Probability</li>
+              <li>Honors C++</li>
+              <li>Honors Python</li>
+              <li>AP Computer Science A</li>
+              <li>AP Calculus BC</li>
+              <li>Biotech I</li>
+              <li>Biotech II Lab</li>
+              <li>AP Statistics</li>
+              <li>AP Biology</li>
+              <li>AP Environmental Science</li>
+              <li>Business Calculus</li>
+              <li>Design</li>
+              <li>AP Macroeconomics</li>
+              <li>AP Literature</li>
+              <li>AP Language</li>
+              <li>AP Government</li>
+              <li>AP US History</li>
+              <li>AP World History</li>
+              <li>AP Chinese</li>
+              <li>AP Psychology</li>
+            </ol></details></dd><dt>AP + dual-enrollment courses</dt></div>
           </dl>
         </article>
         <article class="card" id="clash">
