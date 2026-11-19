@@ -90,6 +90,8 @@ html:not(.canvas) .clients::before, html:not(.canvas) .clients li::before { disp
 .courses summary::-webkit-details-marker { display: none; }
 .courses summary::before { content: "+"; font-size: 15px; width: 1ch; }
 .courses[open] summary::before { content: "\2212"; }
+.courses .c, .courses[open] .o { display: none; }
+.courses[open] .c { display: inline; }
 .courses summary:hover { border-color: var(--muted); }
 .courses summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .courses__note { margin: 10px 0 6px; font-size: 12px; font-style: italic; color: var(--muted); }
@@ -414,7 +416,7 @@ html.canvas, html.canvas body { height: 100%; overflow: hidden; overscroll-behav
           <dl class="stats">
             <div><dd>1560</dd><dt>SAT, out of 1600</dt><dd style="font-size:13px"><em>780 math, 780 english</em></dd></div>
             <div><dd>4.5</dd><dt>Weighted GPA</dt></div>
-            <div class="wide"><dd class="courses-dd">13 + 11 <details class="courses"><summary>24 courses</summary><p class="courses__note">DE = dual enrollment, college courses taken for college credit.</p><ol>
+            <div class="wide"><dd class="courses-dd">13 + 11 <details class="courses"><summary><span class="o">Expand courses</span><span class="c">Collapse</span></summary><p class="courses__note">DE = dual enrollment, college courses taken for college credit.</p><ol>
               <li>Computer Vision</li>
               <li>Design and Analysis of Algorithms</li>
               <li>Data Structures</li>
@@ -687,7 +689,7 @@ html.canvas, html.canvas body { height: 100%; overflow: hidden; overscroll-behav
   // anchor jumps and focus scroll the stage itself, which would shift the whole canvas out of the camera's control
   stage.addEventListener('scroll', () => { stage.scrollTop = stage.scrollLeft = 0; });
   stage.addEventListener('pointerdown', e => {
-    if (!cam || e.target.closest('a, #contact')) return;
+    if (!cam || e.target.closest('a, summary, #contact')) return; // pointer capture would swallow the click on these
     drag = { x: e.clientX, y: e.clientY };
     stage.setPointerCapture(e.pointerId);
     stage.classList.add('drag');
@@ -736,6 +738,8 @@ html.canvas, html.canvas body { height: 100%; overflow: hidden; overscroll-behav
   // the web font changes card heights, so the path is rebuilt; mid-glide, the camera keeps gliding to the new target
   document.fonts?.ready.then(() => { if (!raf) return layout(); if (wide.matches) { place(); buildPath(); drawWires(); move(); } });
   wide.addEventListener('change', layout);
+  // opening the course list changes the card's height, so re-place everything that hangs off it
+  document.addEventListener('toggle', layout, true);
   const linked = location.hash && $(location.hash.slice(1));
   if (linked) { interacted(); cam ? goTo(linked, true) : linked.scrollIntoView(); }
 })();
