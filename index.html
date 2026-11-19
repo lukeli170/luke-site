@@ -83,12 +83,19 @@ html:not(.canvas) .clients::before, html:not(.canvas) .clients li::before { disp
 .stats dd { font-size: 20px; line-height: 1.25; }
 .stats dt { font: 400 12px/1.4 var(--mono); color: var(--muted); grid-row: 2; }
 .stats > div { display: grid; align-content: start; }
-.courses-dd { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; }
-.courses summary { list-style: none; font: 400 11px/1 var(--mono); color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 3px 6px; cursor: pointer; }
-.courses summary::-webkit-details-marker { display: none; }
+.stats > .wide { grid-column: 1 / -1; }
+.courses-dd { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .courses[open] { flex-basis: 100%; }
-.courses__note { margin: 10px 0 4px; font-size: 12px; font-style: italic; color: var(--muted); }
-.courses ol { margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6; }
+.courses summary { list-style: none; display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 6px 12px; border: 1px solid var(--wire); border-radius: 6px; font: 400 12px/1 var(--mono); color: var(--ink); cursor: pointer; user-select: none; }
+.courses summary::-webkit-details-marker { display: none; }
+.courses summary::before { content: "+"; font-size: 15px; width: 1ch; }
+.courses[open] summary::before { content: "\2212"; }
+.courses summary:hover { border-color: var(--muted); }
+.courses summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.courses__note { margin: 10px 0 6px; font-size: 12px; font-style: italic; color: var(--muted); }
+.courses ol { margin: 0; padding-left: 22px; font-size: 14px; line-height: 1.6; columns: 2; column-gap: 28px; }
+.courses li { break-inside: avoid; }
+@media (max-width: 460px) { .courses ol { columns: 1; } }
 .stats--3 { grid-template-columns: repeat(3, 1fr); }
 
 /* A card still waiting for facts from Luke. Remove the class once it's filled in. */
@@ -407,7 +414,7 @@ html.canvas, html.canvas body { height: 100%; overflow: hidden; overscroll-behav
           <dl class="stats">
             <div><dd>1560</dd><dt>SAT, out of 1600</dt><dd style="font-size:13px"><em>780 math, 780 english</em></dd></div>
             <div><dd>4.5</dd><dt>Weighted GPA</dt></div>
-            <div><dd class="courses-dd">13 + 11 <details class="courses"><summary>courses</summary><p class="courses__note">DE = dual enrollment, college courses taken for college credit.</p><ol>
+            <div class="wide"><dd class="courses-dd">13 + 11 <details class="courses"><summary>24 courses</summary><p class="courses__note">DE = dual enrollment, college courses taken for college credit.</p><ol>
               <li>Computer Vision</li>
               <li>Design and Analysis of Algorithms</li>
               <li>Data Structures</li>
